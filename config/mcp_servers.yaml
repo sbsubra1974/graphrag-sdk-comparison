@@ -1,0 +1,22 @@
+# Single source of truth for MCP servers used by this project.
+# Add a server here, then run:  python scripts/sync_mcp.py
+# That regenerates .mcp.json (used by Claude Code) and the Agent SDK
+# loads this file directly at runtime (see src/graphrag_cmp/mcp_config.py).
+#
+# Each entry: type stdio|http|sse. ${VAR} values are expanded from the environment.
+servers:
+  neo4j-cypher:
+    enabled: false
+    type: stdio
+    command: uvx
+    args: ["mcp-neo4j-cypher"]
+    env:
+      NEO4J_URI: ${NEO4J_URI}
+      NEO4J_USERNAME: ${NEO4J_USER}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+  # example-remote:
+  #   enabled: false
+  #   type: http
+  #   url: https://example.com/mcp
+  #   headers:
+  #     Authorization: Bearer ${EXAMPLE_TOKEN}
