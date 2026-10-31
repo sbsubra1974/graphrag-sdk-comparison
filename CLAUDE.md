@@ -11,16 +11,20 @@ once with the **Anthropic Python SDK** and once with the **Claude Agent SDK**.
 - LLM: Claude (`CLAUDE_MODEL`)
 
 ## Layout
-- `src/graphrag_cmp/ingestion/` parse, chunk, embed, write to Neo4j (shared by all variants)
+- `src/graphrag_cmp/ingestion/` parse.py, chunk.py, embed.py, extract_graph.py, pipeline.py
+- `src/graphrag_cmp/neo4j_store.py` all Cypher for writing chunks, vectors and the graph
 - `src/graphrag_cmp/retrieval/` SDK-agnostic retrievers: vector search, graph traversal
 - `src/graphrag_cmp/anthropic_sdk/` rag.py, agentic_rag.py, graphrag.py using `anthropic.Anthropic`
 - `src/graphrag_cmp/agent_sdk/` same three, using `claude_agent_sdk` with in-process MCP tools
+- `src/graphrag_cmp/retrieval/tools.py` tool schemas + run_tool(), shared by both agentic variants
+- `src/graphrag_cmp/prompts.py` system prompts shared by all six variants
+- `src/graphrag_cmp/variants.py` registry of the six `<sdk>.<style>` variants used by the CLI
 - `config/mcp_servers.yaml` the only place MCP servers are defined (see below)
 - `.claude/skills/` project skills; `SKILLS.md` indexes them
 
 ## Rules
 - Both SDK folders must call the same retrievers in `retrieval/`, so comparisons are fair.
-- Keep each variant file self-contained and readable; this repo is for learning.
+- Keep code simple with inline comments; each variant file should read on its own. This repo is for learning.
 - Secrets come from `.env` only. Never commit `.env` or API keys.
 - Run `pytest` and `ruff check .` before every commit.
 - Commit per step with a clear message (`ingestion: ...`, `agent_sdk: ...`, `mcp: ...`).
@@ -33,4 +37,8 @@ to regenerate `.mcp.json`. The Agent SDK variants load the YAML at runtime via
 ## Commands
 - `docker compose up -d` start Neo4j (browser at http://localhost:7474)
 - `pip install -e ".[dev]"` install
+- `graphrag-cmp ingest data/file.pdf [--reset] [--no-graph]` load a PDF
+- `graphrag-cmp ask "question" --variant agent_sdk.graphrag` one variant
+- `graphrag-cmp compare "question"` all six side by side
 - `graphrag-cmp mcp-list` list configured MCP servers
+- `pytest` unit tests; Neo4j integration tests run when Neo4j is up (they wipe the DB)
